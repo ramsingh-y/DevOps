@@ -13,12 +13,13 @@ pipeline {
         }
         stage('QualityCheck') {
             steps {
-				echo 'job ${jobName}'
+				echo "job ${jobName}"
                 echo 'QualityCheck - Done'
             }
         }
         stage('SercurityCheck') {
             steps {
+				dependencyCheck additionalArguments: '--scan=. --format=html', odcInstallation: 'OWASP-Dependency-Check'
                 echo 'SercurityCheck - Passed'
             }
         }
