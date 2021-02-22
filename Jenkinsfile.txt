@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    tools { 
+            maven 'Maven 3.6.3' 
+    }
+   
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: 'main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/ramsingh-y/DevOps.git']]])
+                echo 'Checkout from Git Repo'
+            }
+        }
+        stage('QualityCheck') {
+            steps {
+                echo 'QualityCheck - Done'
+            }
+        }
+        stage('SercurityCheck') {
+            steps {
+                echo 'SercurityCheck - Passed'
+            }
+        }
+        stage('Build Push App') {
+            // Maven installation declared in the Jenkins "Global Tool Configuration"
+            
+        steps {
+            
+            sh "mvn clean install"
+            
+            echo 'App push done'
+                 }
+            }
+                stage('DeployApp') {
+            steps {
+                echo 'DeployApp - Completed'
+            }
+        }
+        stage('PostDeploymentApp') {
+            steps {
+                echo 'Deployment - Successfully'
+            }
+        }
+    }
+    
+}
