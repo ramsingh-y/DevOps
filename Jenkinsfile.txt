@@ -1,49 +1,64 @@
-pipeline {
-    agent any
-    tools { 
-            maven 'Maven 3.6.3' 
-    }
-   
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout([$class: 'GitSCM', branches: [[name: 'main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/ramsingh-y/DevOps.git']]])
-                echo 'Checkout from Git Repo'
-            }
-        }
-        stage('QualityCheck') {
-            steps {
+1 pipeline { 
+2     agent any 
+3     tools { 
+4         maven 'Maven 3.6.3' 
+5     } 
+6 
+ 
+7     stages { 
+8 
+ 
+9         stage('Initialize') { 
+10             steps { 
+11                 echo "PATH = ${PATH}" 
+12                 echo "M2_HOME = ${M2_HOME}" 
+13             } 
+14         } 
+15 
+ 
+16         stage('Checkout') { 
+17             steps { 
+18                 checkout([$class: 'GitSCM', branches: [[name: 'main']], extensions: [[$class: 'CheckoutOption', timeout: 5], [$class: 'CloneOption', noTags: false, reference: '', shallow: false, timeout: 5]], userRemoteConfigs: [[url: 'https://github.com/ramsingh-y/DevOps.git']]]) 
+19 
+ 
+20                 echo 'Checkout source code from git' 
+21             } 
+22         } 
+23         stage('Quality Check') { 
+24             steps {
 				echo "job ${jobName}"
                 echo 'QualityCheck - Done'
-            }
-        }
-        stage('SercurityCheck') {
-            steps {
-				dependencyCheck additionalArguments: '--scan=. --format=HTML', odcInstallation: 'OWASP-Dependency-Check'
-                echo 'SercurityCheck - Passed'
-            }
-        }
-        stage('Build Push App') {
-            // Maven installation declared in the Jenkins "Global Tool Configuration"
-            
-        steps {
-            
-            sh "mvn clean install"
-            
-            echo 'App push done'
-                 }
-            }
-                stage('DeployApp') {
-            steps {
-				sh "nohup java -jar ./target/spring-boot-rest-2-0.0.1-SNAPSHOT.jar &"
-                echo 'DeployApp - Completed'
-            }
-        }
-        stage('PostDeploymentApp') {
-            steps {
-                echo 'Deployment - Successfully'
-            }
-        }
-    }
-    
-}
+27         } 
+28         stage('Security Check') { 
+29             steps { 
+30                 dependencyCheck additionalArguments: '--scan=. --format=HTML', odcInstallation: 'OWASP-Dependency-Check' 
+31                 echo 'All security checks done' 
+32             } 
+33         } 
+34         stage('Build Push App') { 
+35             steps { 
+36                 sh "mvn clean install" 
+37             } 
+38         }    
+39         stage('Kill previous deploy ment') { 
+40             steps { 
+41                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') { 
+42                     sh "fuser -k 8083/tcp" 
+43                 } 
+44             } 
+45         } 
+46 
+ 
+47         stage('Deploy') { 
+48             steps { 
+49                 sh "JENKINS_NODE_COOKIE=dontKillMe nohup java -jar ./target/spring-boot-rest-2-0.0.1-SNAPSHOT.jar &" 
+50                 echo 'Deployment done' 
+51             } 
+52         } 
+53         stage('Post Deployment Check') { 
+54             steps { 
+55                 echo 'All deployment check done' 
+56             } 
+57         } 
+58     } 
+59 } 
