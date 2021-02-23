@@ -36,9 +36,7 @@
 					"raw": "http://localhost:8083/register/student",
 					"protocol": "http",
 					"host": [
-						"vlmaz2021tn14",
-						"fisdev",
-						"local"
+						"localhost"
 					],
 					"port": "8083",
 					"path": [
