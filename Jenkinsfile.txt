@@ -10,6 +10,7 @@ pipeline{
                  echo "M2_HOME = ${M2_HOME}" 
              } 
          } 
+		  parallel {
           stage('Checkout') { 
              steps { 
                  checkout([$class: 'GitSCM', branches: [[name: 'main']], extensions: [[$class: 'CheckoutOption', timeout: 5], [$class: 'CloneOption', noTags: false, reference: '', shallow: false, timeout: 5]], userRemoteConfigs: [[url: 'https://github.com/ramsingh-y/DevOps.git']]]) 
@@ -21,6 +22,7 @@ pipeline{
 				echo "job ${jobName}"
                 echo 'QualityCheck - Done'
          } 
+		 }
 		 }
          stage('Security Check') { 
              steps { 
@@ -48,7 +50,7 @@ pipeline{
          } 
          stage('Post Deployment Check') { 
              steps { 
-		sh "/usr/local/bin/newman run DevOpsTraining.postman_collection.json -r html,cli"
+				sh "/usr/local/bin/newman run DevOpsTraining.postman_collection.json -r html,cli"
                  echo 'All deployment check done' 
              } 
          } 
