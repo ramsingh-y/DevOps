@@ -10,26 +10,28 @@ pipeline{
                  echo "M2_HOME = ${M2_HOME}" 
              } 
          } 
-		  parallel {
-          stage('Checkout') { 
+		  stage('Checkout') { 
              steps { 
                  checkout([$class: 'GitSCM', branches: [[name: 'main']], extensions: [[$class: 'CheckoutOption', timeout: 5], [$class: 'CloneOption', noTags: false, reference: '', shallow: false, timeout: 5]], userRemoteConfigs: [[url: 'https://github.com/ramsingh-y/DevOps.git']]]) 
                   echo 'Checkout source code from git' 
              } 
          } 
-         stage('Quality Check') { 
-             steps {
-				echo "job ${jobName}"
-                echo 'QualityCheck - Done'
-         } 
-		 }
-		 }
-         stage('Security Check') { 
+		 stage('Parallel Run') { 
+		 parallel {
+				stage('Quality Check') { 
+					steps {
+						echo "job ${jobName}"
+						echo 'QualityCheck - Done'
+					} 
+				}
+		    stage('Security Check') { 
              steps { 
                  dependencyCheck additionalArguments: '--scan=. --format=HTML', odcInstallation: 'OWASP-Dependency-Check' 
                  echo 'All security checks done' 
              } 
          } 
+		 }
+		 }
          stage('Build Push App') { 
              steps { 
                  sh "mvn clean install" 
