@@ -53,9 +53,14 @@ pipeline{
          stage('Post Deployment Check') { 
              steps { 
 				sh "/usr/local/bin/newman run DevOpsTraining.postman_collection.json -r html,cli"
-                 echo 'All deployment check done' 
-				emailext attachLog: true, body: 'Hello', subject: 'Test Results', to: 'ram.s.yadav@fisglobal.com'
+                 echo 'All deployment check done' 				
 			 } 
-         } 
+         }
+		stage('Notification') { 
+             steps {
+				echo 'Send Test Results Email and Teams Notificataion' 
+				emailext attachLog: true, body: 'Hello', subject: 'Test Results', to: 'ram.s.yadav@fisglobal.com'
+			}
+			} 
      } 
  }
