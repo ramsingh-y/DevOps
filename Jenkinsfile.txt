@@ -18,6 +18,12 @@ pipeline{
          } 
 		 stage('Parallel Run') { 
 		 parallel {
+				stage('Unit Test') { 
+					steps {
+						echo 'Junit test in progress'
+                        sh "mvn clean test"
+					} 
+				}		 
 				stage('Quality Check') { 
 					steps {
 						echo "job ${jobName}"
@@ -29,7 +35,8 @@ pipeline{
                  dependencyCheck additionalArguments: '--scan=. --format=HTML', odcInstallation: 'OWASP-Dependency-Check' 
                  echo 'All security checks done' 
              } 
-         } 
+         }
+		 
 		 }
 		 }
          stage('Build Push App') { 
